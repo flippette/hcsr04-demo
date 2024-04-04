@@ -5,7 +5,11 @@ build-std = ["core"]
 target = "thumbv7em-none-eabihf"
 
 [target.thumbv7em-none-eabihf]
-runner = "probe-rs run --chip STM32F411RETx"
+runner = [
+    "probe-rs", "run",
+    "--chip", "STM32F411RETx",
+    "--log-format", "{L:>5} {s}"
+]
 rustflags = [
     "-C", "link-arg=-Tlink.x",
     "-C", "link-arg=--nmagic",
@@ -13,7 +17,7 @@ rustflags = [
 ]
 
 [env]
-DEFMT_LOG = "info"
+DEFMT_LOG = "debug"
 
 [profile.release]
 opt-level = "z"

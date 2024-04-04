@@ -13,7 +13,7 @@ use core::pin::pin;
 use defmt_rtt as _;
 use panic_probe as _;
 
-use defmt::info;
+use defmt::{debug, info};
 use embassy_executor::{main, task, Spawner};
 use embassy_stm32::{
     exti::ExtiInput,
@@ -51,14 +51,14 @@ async fn hcsr04(
             trig.set_high();
             Timer::after_micros(10).await;
             trig.set_low();
-            info!("triggered pulses!");
+            debug!("triggered pulses!");
 
             let echo_start = Instant::now();
             let mut echo_wait = pin!(async {
                 echo.wait_for_high().await;
-                info!("saw high!");
+                debug!("saw high!");
                 echo.wait_for_low().await;
-                info!("saw low!");
+                debug!("saw low!");
             }
             .fuse());
             let mut timeout = Timer::after_millis(40).fuse();
@@ -66,7 +66,6 @@ async fn hcsr04(
             select_biased! {
                 () = echo_wait => break Instant::now() - echo_start,
                 () = timeout => {
-                    info!("timeout expired, retrying measurement!");
                     reset.set_low();
                     Timer::after_millis(50).await;
                     reset.set_high();
