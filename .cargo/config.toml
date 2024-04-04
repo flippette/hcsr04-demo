@@ -1,0 +1,23 @@
+[unstable]
+build-std = ["core"]
+
+[build]
+target = "thumbv7em-none-eabihf"
+
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip STM32F411RETx"
+rustflags = [
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=--nmagic",
+    "-C", "link-arg=-Tdefmt.x",
+]
+
+[env]
+DEFMT_LOG = "info"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = false
+debug = 2
