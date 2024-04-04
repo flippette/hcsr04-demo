@@ -43,29 +43,28 @@ async fn hcsr04(
     mut reset: Output<'static, PA10>,
 ) {
     loop {
-        // trigger pulses
-        trig.set_low();
-        Timer::after_micros(5).await;
-        trig.set_high();
-        Timer::after_micros(10).await;
-        trig.set_low();
-        info!("triggered pulses!");
-
         // measurement loop
         let echo_dur = loop {
-            let start = Instant::now();
+            // trigger pulses
+            trig.set_low();
+            Timer::after_micros(5).await;
+            trig.set_high();
+            Timer::after_micros(10).await;
+            trig.set_low();
+            info!("triggered pulses!");
 
+            let echo_start = Instant::now();
             let mut echo_wait = pin!(async {
-                echo.wait_for_rising_edge().await;
-                info!("saw rising edge!");
-                echo.wait_for_falling_edge().await;
-                info!("saw falling edge!");
+                echo.wait_for_high().await;
+                info!("saw high!");
+                echo.wait_for_low().await;
+                info!("saw low!");
             }
             .fuse());
             let mut timeout = Timer::after_millis(40).fuse();
 
             select_biased! {
-                () = echo_wait => break Instant::now() - start,
+                () = echo_wait => break Instant::now() - echo_start,
                 () = timeout => {
                     info!("timeout expired, retrying measurement!");
                     reset.set_low();
