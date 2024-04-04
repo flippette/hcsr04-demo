@@ -1,3 +1,10 @@
+//! HC-SR04 demo
+//!
+//! Vcc -> +5V
+//! Trig -> PA2
+//! Echo -> PA3
+//! GND -> NPN -> LED -> Resistor -> GND
+
 #![no_std]
 #![no_main]
 
